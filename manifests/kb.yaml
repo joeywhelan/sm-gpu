@@ -1,0 +1,26 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: kibana
+spec:
+  version: 9.2.3 
+  count: 1        
+  elasticsearchRef:
+    name: elastic
+  config:
+    monitoring.ui.ccs.enabled: false
+  podTemplate:
+    spec:
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: 2Gi
+            cpu: 1
+          limits:
+            memory: 2Gi
+            cpu: 1
+  http:
+    service:
+      spec:
+        type: LoadBalancer
