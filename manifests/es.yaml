@@ -21,6 +21,12 @@ spec:
       node.roles: ["master"]
     podTemplate:
       spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=1048576']
         containers:
         - name: elasticsearch
           resources:
@@ -30,6 +36,7 @@ spec:
             limits:
               memory: 4Gi
               cpu: 2
+        
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
@@ -51,10 +58,10 @@ spec:
       node.roles: ["data", "ingest"]
     podTemplate:
       spec:
-      tolerations:
-      - key: "nvidia.com/gpu"
-        operator: "Exists"
-        effect: "NoSchedule"
+        tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
         initContainers:
         - name: sysctl
           securityContext:
