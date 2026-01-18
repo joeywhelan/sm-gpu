@@ -56,20 +56,62 @@ spec:
     count: 3
     config:
       node.roles: ["data", "ingest"]
+      #vectors.indexing.use_gpu: false
     podTemplate:
       spec:
         tolerations:
         - key: "nvidia.com/gpu"
           operator: "Exists"
           effect: "NoSchedule"
+        volumes:
+          - name: lib-cache
+            emptyDir: {}
         initContainers:
         - name: sysctl
           securityContext:
             privileged: true
             runAsUser: 0
           command: ['sh', '-c', 'sysctl -w vm.max_map_count=1048576']
+        - name: install-cuvs-libs
+          image: continuumio/miniconda3
+          volumeMounts:
+            - name: lib-cache
+              mountPath: /shared_libs
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+          command: ["/bin/sh", "-c"]
+          args:
+          - |
+            conda install -y -c rapidsai -c conda-forge \
+              libcuvs \
+              cuda-libraries \
+              cuda-version=12.9 && \
+        
+            cp -L /opt/conda/lib/libstdc++.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libgcc_s.so* /shared_libs/ && \
+
+            cp -L /opt/conda/lib/libcuvs*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libcudart*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/librmm*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/librapids_logger*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libcublas*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libcusolver*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libcusparse*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libcurand*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libnccl*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libgomp*.so* /shared_libs/ && \
+            cp -L /opt/conda/lib/libnvJitLink*.so* /shared_libs/ && \
+        
+            chown -R 1000:1000 /shared_libs
         containers:
         - name: elasticsearch
+          volumeMounts:
+            - name: lib-cache
+              mountPath: /usr/share/elasticsearch/libs/cuvs
+          env:
+          - name: LD_LIBRARY_PATH
+            value: "/usr/share/elasticsearch/libs/cuvs"
           resources:
             requests:
               memory: 12Gi
