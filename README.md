@@ -18,19 +18,19 @@ This is a demonstration of integration of Nvidia GPUs to self-managed Elastic Cl
 - Jupyter notebook
 - Builds an ECK deployment on Google Kubernetes Engine (GKE)
 - GKE deployment includes CPU-only nodes for the Elastic Master nodes and CPU + Nvidia GPU nodes for the Elastic Data nodes.
-- Creates a synthetic dataset with a text field and dense vector field from jina-embeddings-v3
-- Conducts a CPU vs GPU test of indexing on that dataset
+- Creates a synthetic multi-lingual dataset with a text field and dense vector field from jina-embeddings-v3
+- Executes a semantic search against that multi-lingual dataset
 - Deletes the entire GKE environment
 
 ## Prerequisites <a name="prerequisites"></a>
 - GCP project
 - gcloud CLI
-- Jina API key
+- Elastic Cloud Connected API Key
 - Python
 
 ## Installation <a name="installation"></a>
-- Edit the .api_keys.template file and rename to .api_keys
 - Create a Python virtual environment
 
 ## Usage <a name="usage"></a>
 - Execute notebook
+- Elastic credentials will be stored in a .env file that is created dynamically.  Use those credentials to access Kibana.

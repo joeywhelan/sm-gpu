@@ -13,7 +13,7 @@ kind: Elasticsearch
 metadata:
   name: elastic
 spec:
-  version: 9.2.3 
+  version: 9.3.0 
   nodeSets:
   - name: master-node
     count: 3
@@ -56,7 +56,7 @@ spec:
     count: 3
     config:
       node.roles: ["data", "ingest"]
-      #vectors.indexing.use_gpu: false
+      vectors.indexing.use_gpu: true
     podTemplate:
       spec:
         tolerations:
@@ -73,7 +73,7 @@ spec:
             runAsUser: 0
           command: ['sh', '-c', 'sysctl -w vm.max_map_count=1048576']
         - name: install-cuvs-libs
-          image: continuumio/miniconda3
+          image: condaforge/miniforge3:latest
           volumeMounts:
             - name: lib-cache
               mountPath: /shared_libs
@@ -83,10 +83,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
           - |
-            conda install -y -c rapidsai -c conda-forge \
-              libcuvs \
-              cuda-libraries \
-              cuda-version=12.9 && \
+            conda install -y -c rapidsai -c conda-forge libcuvs=25.12 cuda-version=12.5
         
             cp -L /opt/conda/lib/libstdc++.so* /shared_libs/ && \
             cp -L /opt/conda/lib/libgcc_s.so* /shared_libs/ && \
@@ -111,7 +108,7 @@ spec:
               mountPath: /usr/share/elasticsearch/libs/cuvs
           env:
           - name: LD_LIBRARY_PATH
-            value: "/usr/share/elasticsearch/libs/cuvs"
+            value: "/usr/share/elasticsearch/libs/cuvs:/usr/share/elasticsearch/lib"
           resources:
             requests:
               memory: 12Gi
