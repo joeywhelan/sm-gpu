@@ -188,6 +188,7 @@ I generate multilingual synthetic data using the Python `Faker` library. Each do
 - A randomly generated multilingual paragraph  
 - A corresponding embedding produced by the Jina.ai model via EIS  
 - Note the use of `pack_dense_vector` to Base64-encode the Jina vector.  This provides a considerable ingest speed-up.
+- In order to see meaningful indexing speed-up with GPUs, you need a dataset with millions of vectors.  For demo purposes, I'm just showing here the EIS functionality and later, that the integration between Elastic and NVIDIA was achieved.
 ```python
 faker = Faker(['en_US', 'es_ES', 'fr_FR', 'de_DE', 'zh_CN']) 
 
